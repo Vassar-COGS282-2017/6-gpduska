@@ -19,6 +19,13 @@ sigmoid.activation <- function(x){
 }
 
 # Add some code to visualize the sigmoid activation function from x=-10 to x=10.
+sigmoid.visual <- c()
+  
+for(i in -10:10){
+  sigmoid.visual <- append(sigmoid.visual, sigmoid.activation(i), after = length(sigmoid.visual))
+}
+
+plot(-10:10, sigmoid.visual)
 
 # Initializing the matrices to hold the connection weights.
 # We'll create one matrix for the weights from the input to hidden layer, and another for the weights from the 
@@ -36,8 +43,28 @@ hidden.to.output.weights <- matrix(rnorm(n.hidden*n.output,mean=0,sd=0.1), nrow=
 # job is to create the hidden.layer and output.layer variables in the appropriate way.
 # Don't forget to use the sigmoid.activation function created above.
 forward.pass <- function(input, input.to.hidden.weights, hidden.to.output.weights){
-  hidden.layer.activation <- NA # replace NAs with correct code
-  output.layer.activation <- NA
+  
+  hidden.layer.activation <- rep(0, n.hidden)
+  
+  for(i in 1:n.hidden){
+    sum <- 0
+    for(j in 1:n.input){
+      sum <- sum + input.to.hidden.weights[j,i] * input[j]
+    }
+    hidden.layer.activation[i] <- sigmoid.activation(sum)
+  }
+    
+  
+  output.layer.activation <- rep(0, n.output)
+  
+  for(i in 1:n.output){
+    sum <- 0
+    for(j in 1:n.hidden){
+      sum <- sum + hidden.to.output.weights[j,i] * hidden.layer.activation[j]
+    }
+    output.layer.activation[i] <- sigmoid.activation(sum)
+  }
+  
   return(list(hidden=hidden.layer.activation, output=output.layer.activation))
 }
 
@@ -70,13 +97,17 @@ backprop <- function(input, target, input.to.hidden.weights, hidden.to.output.we
   
   # Step 2. Calculate the forward pass on the network. This gets us the activity of the
   # hidden and output layers for a particular set of inputs.
-  activations <- forward.pass(input)
+  activations <- forward.pass(input, input.to.hidden.weights, hidden.to.output.weights)
   output.activation <- activations$output
   hidden.activation <- activations$hidden
   
   # Step 3. Find the error on the output units. We can find the error just like we did 
   # with the delta rule. Just subtract the actual output from the desired output.
-  output.error <- NA # replace NA with correct code.
+  output.error <- rep(0, n.output)
+  
+  for(i in 1:n.output){
+    output.error[i] <- output.activation[i] - target[i]
+  }
   
   # Step 4. We need to multiply the error for a node (an element in the output.error vector)
   # by the derivative of the activation function for the node. The activation function is the
@@ -84,13 +115,22 @@ backprop <- function(input, target, input.to.hidden.weights, hidden.to.output.we
   # Calculate a "weighted" error in two steps:
   # 1) Find the derivative (slope) for each output node at the level of activation of that node.
   # 2) Multiple this by the node's error to get the weighted error.
-  output.slope <- NA
-  output.weighted.error <- NA
+  output.slope <- rep(0, n.output)
+  
+  for(i in 1:n.output){
+    output.slope[i] <- output.activation[i] * (1 - output.activation[i])
+  }
+  
+  output.weighted.error <- rep(0, n.output)
+  
+  for(i in 1:n.output){
+    output.weighted.error <- output.slope[i] * output.error[i]
+  }
   
   # Step 5. Find the change in the hidden to output weights by applying the delta rule, using the
   # weighted error instead of the error.
   for(o in 1:n.output){
-    delta.hidden.to.output.weights[,o] <- NA
+    delta.hidden.to.output.weights[,o] <- 
   }
   
   # Step 6. Now we need to "backpropogate" the error from the output nodes to the hidden nodes,
