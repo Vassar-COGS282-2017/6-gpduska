@@ -225,10 +225,10 @@ epoch <- function(epoch.train.size, epoch.test.size, input.to.hidden.weights, hi
   classification.acc <- 0
   for(t in sample(10000, epoch.test.size)){
     error <- error + test.pattern(testData[t,], testLabels[t,], input.to.hidden.weights, hidden.to.output.weights)
-    classification.acc <- classification.acc + classification.correct(testData[t,], testLabels[t,])
+    classification.acc <- classification.acc + classification.correct(testData[t,], testLabels[t,], input.to.hidden.weights, hidden.to.output.weights)
   }
   classification.acc <- classification.acc / epoch.test.size
-  return(list(error=error, classification.accuracy=classification.acc))
+  return(list(error=error, classification.accuracy=classification.acc, input.to.hidden.weights=input.to.hidden.weights, hidden.to.output.weights=hidden.to.output.weights))
 }
 
 # Run a batch of epochs
@@ -242,13 +242,15 @@ batch <- function(epochs){
     result <- epoch(epoch.train.size, epoch.test.size, input.to.hidden.weights, hidden.to.output.weights)
     errors[i] <- result$error
     classifications[i] <- result$classification.accuracy
+    input.to.hidden.weights <- result$input.to.hidden.weights
+    hidden.to.output.weights <- result$hidden.to.output.weights
     setTxtProgressBar(pb, i)
   }
   return(data.frame(epoch=1:epochs, error=errors, accuracy=classifications))
 }
 
 # Uncomment these lines when you are ready to test the code.
-result <- batch(2)  # 300 epochs should be enough to reach >80% accuracy.
+result <- batch(5)  # 300 epochs should be enough to reach >80% accuracy.
 plot(result$accuracy) # plot the accuracy of the network over training (should increase).
 plot(result$error) # plot the error at the output layer over time (should decrease).
 
