@@ -201,7 +201,16 @@ test.pattern <- function(input, target, input.to.hidden.weights, hidden.to.outpu
 # FALSE. This function represents the best guess of the network. We will use it to interpret the
 # output of the network as an identification of the digit.
 classification.correct <- function(input, target, input.to.hidden.weights, hidden.to.output.weights){
-  return(NA)
+  
+  activations <- forward.pass(input, input.to.hidden.weights, hidden.to.output.weights)
+  output.activation <- activations$output
+  hidden.activation <- activations$hidden
+  
+  if (which(output.activation == max(output.activation)) == which(target == max(target))){
+    TRUE
+  } else {
+    FALSE
+  }
 }
 
 # This function runs a single epoch, based on the epoch.train.size and epoch.test.size parameters
